@@ -24,6 +24,8 @@ data = {
 	"data": ""
 }
 
+messages = ""
+
 def input_message () :
 	global data
 
@@ -34,13 +36,12 @@ def input_message () :
 	server(res)
 
 def main () :
-	global data
+	global data, messages
 
 	keyboard.add_hotkey("enter", input_message)
 
 	print("Hello, welcome to Meow Message")
-	# data['nickname'] = input("enter your nick name - ")
-	data['nickname'] = "admin"
+	data['nickname'] = input("enter your nick name - ")
 
 	check_message_time = time.time()
 
@@ -51,7 +52,15 @@ def main () :
 			# sys("cls")
 			data["command"] = "select"
 			res = json.dumps(data)
-			print(server(res))
+			
+			out_window = server(res)
+			out_window = json.loads(out_window)
+
+			sys("cls")
+
+			for x in out_window :
+				print(f"{x[0]} >>>   {x[1]}")
+
 
 		
 

@@ -29,8 +29,6 @@ while True :
 		res = db.insert(data)
 		# print(data)
 
-	print(res)
-
 	try:
 		user.send(json.dumps(res).encode("utf-8"))
 	except :
