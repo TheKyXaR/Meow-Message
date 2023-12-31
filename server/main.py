@@ -2,8 +2,11 @@
 
 import keyboard
 import socket
+import sqlite3
 import json
-import db
+
+con = sqlite3.connect("db.db")
+cur = con.cursor()
 
 sock = socket.socket()
 sock.bind(('127.0.0.1', 9090))
@@ -13,30 +16,34 @@ def close_server () :
 	sock.close()
 keyboard.add_hotkey("ctrl+shift+c", close_server)
 
-def send_message (user, data) :
-	user.sendall(data)
+def insert (data) :
+	cur.execute(f"INSERT INTO message (user, data) VALUES ('{data['nickname']}', '{data['data']}')")
+	con.commit()
+
+def insert (data) :
+	cur.execute(f"INSERT INTO message (user, data) VALUES ('{data['nickname']}', '{data['message']}')")
+	con.commit()
+
+data = {
+	"answer": ""
+}
 
 while True :
 	user, addr = sock.accept()
-
-	data = user.recv(1024).decode("utf-8")
-	data = json.loads(data)
+	data = json.loads(user.recv(1024).decode("utf-8"))
 
 	if data['command'] == "select" :
-		res = db.select()
+		res = cur.execute("SELECT user, data FROM message").fetchmany(150)
 
 	elif data['command'] == "insert" :
-		res = db.insert(data)
-		# print(data)
+		res = insert(data)
 
-	try:
-		user.send(json.dumps(res).encode("utf-8"))
-	except :
-		user.send(str(res).encode("utf-8"))
+	user.send(json.dumps(res).encode("utf-8"))
+
 	
 
-	# try:
-	# 	user.send(json.dumps(data).encode("utf-8"))
-	# except :
-	# 	user.send("False".encode("utf-8"))
+	
+	# 	# print(data)
+
+	# user.send(json.dumps(res).encode("utf-8"))
 	

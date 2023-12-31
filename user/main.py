@@ -1,101 +1,43 @@
-# User
+#User
 
 import socket
 import json
 import time
+import functions
 import keyboard
 from os import system as sys
 
-def server (message) :
-	if not message :
-		return
-
-	sock = socket.socket()
-	sock.connect(('127.0.0.1', 9090))
-
-	sock.send(message.encode("utf-8"))
-
-	data = sock.recv(1024)
-	return data.decode("utf-8")
-	sock.close()
+config = functions.create_config()
 
 data = {
 	"command": "select",
-	"data": ""
+	"nickname": config["nickname"],
+	"message": ""
 }
-
-messages = ""
 
 def input_message () :
 	global data
 
 	message = input()
 	data["command"] = "insert"
-	data["data"] = message
+	data["message"] = message
 	res = json.dumps(data)
-	server(res)
+	functions.server(config['server'], config['port'], res)
 
-def main () :
-	global data, messages
+keyboard.add_hotkey("enter", input_message)
 
-	keyboard.add_hotkey("enter", input_message)
+while True :
+	time.sleep(1)
 
-	print("Hello, welcome to Meow Message")
-	data['nickname'] = input("enter your nick name - ")
+	data["command"] = "select"
 
-	check_message_time = time.time()
+	inp = functions.server(config['server'], config['port'], json.dumps(data))
+	inp = json.loads(inp)
 
-	while True :
-		if time.time() - check_message_time > 0.5 :
-			check_message_time = time.time()
-
-			# sys("cls")
-			data["command"] = "select"
-			res = json.dumps(data)
-			
-			out_window = server(res)
-			out_window = json.loads(out_window)
-
-			sys("cls")
-
-			for x in out_window :
-				print(f"{x[0]} >>>   {x[1]}")
+	sys('cls')
+	print("\n".join([" >>>   ".join(x) for x in inp]))
 
 
-		
 
-if __name__ == '__main__':
-	main()
-
-
-"""
-
-{
-	"command": "select",
-	"sql": {
-		"select": "*",
-		"from" : "table",
-		"where": "",
-	}
-	"data": {
-		"login": input(),
-		"password": input(),
-	}
-}
-
-"""
-
-
-# while True :
-# 	sock = socket.socket()
-# 	sock.connect(('127.0.0.1', 9090))
-
-# 	message = input()
-# 	if not message :
-# 		message = "empty box"
-
-# 	if message == "end connection" :
-# 		break
-# 	sock.send(message.encode("utf-8"))
-
-# sock.close()
+# with open('config.json', 'w') as file :
+# 	pass
